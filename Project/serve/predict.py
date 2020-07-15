@@ -55,6 +55,7 @@ def input_fn(serialized_input_data, content_type):
 
 def output_fn(prediction_output, accept):
     print('Serializing the generated output.')
+    print(str(prediction_output))
     return str(prediction_output)
 
 def predict_fn(input_data, model):
@@ -70,10 +71,12 @@ def predict_fn(input_data, model):
     #         data_X   - A sequence of length 500 which represents the converted review
     #         data_len - The length of the review
 
-    input_data = convert_and_pad_data(word_dict, [review_to_words(input_data)])
+    input_data = convert_and_pad(model.word_dict, review_to_words(input_data))
 
-    data_X = input_data[0][0]
-    data_len = input_data[1][0]
+    print(input_data)
+    
+    data_X = input_data[0]
+    data_len = input_data[1]
 
     # Using data_X and data_len we construct an appropriate input tensor. Remember
     # that our model expects input data of the form 'len, review[500]'.
@@ -89,10 +92,10 @@ def predict_fn(input_data, model):
     # TODO: Compute the result of applying the model to the input data. The variable `result` should
     #       be a numpy array which contains a single integer which is either 1 or 0
     
-    result = model(data).numpy().squeeze()
+    result = model(data).detach().numpy().squeeze()
     if result > 0.5:
-        result = 1.0
+        result = np.int(1)
     else:
-        result = 0.0
+        result = np.int(0)
 
     return result
